@@ -286,7 +286,7 @@ void mode0_draw_screen() {
     // This simple demonstration draws the ENTIRE SCREEN each time (based
     // on the text memory that we have)
 
-    // Column address set
+    // Column address range set
     ili9341_set_command(ILI9341_CASET);
     // SC=0, EC=239
     ili9341_command_param(0x00);
@@ -294,7 +294,7 @@ void mode0_draw_screen() {
     ili9341_command_param(0x00);
     ili9341_command_param(0xef); 
 
-    // Page address set
+    // Page address range set
     ili9341_set_command(ILI9341_PASET);
     // SP=0, EP=319
     ili9341_command_param(0x00);
@@ -305,7 +305,9 @@ void mode0_draw_screen() {
     // Start writing into display RAM
     ili9341_set_command(ILI9341_RAMWR);
 
-    // This demo writes data one column at a time.  Each 
+    // This demo writes one column of text at a time.  That corresponds
+    // to 6 pages of 240 columns each (keep in mind that landscape  
+    // format is being used here).
     uint16_t buffer[6 * 240];  
 
     int screen_idx = 0;
@@ -381,7 +383,7 @@ void mode0_scroll_vertical(int8_t amount) {
 
 void mode0_init() {
     stdio_init_all();
-    ili9341_init();
+    ili9341_init(0);
 }
 
 void mode0_scroll_test(int rows) {

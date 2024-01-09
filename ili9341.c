@@ -83,7 +83,7 @@ void ili9341_write_data_continuous(void *buffer, int bytes) {
     spi_write_blocking(ili9341_config.port, buffer, bytes);
 }
 
-void ili9341_init() {
+void ili9341_init(int mode) {
 
     // Configure the SPI port to run at at 0.5 MHz.
     spi_init(ili9341_config.port, 500 * 1000);
@@ -171,8 +171,10 @@ void ili9341_init() {
     //   BGR: RGB-BGR Order. (1=Blue/Green/Red)
     //   MH: Horizontal Refresh ORDER (0=Sends left first)
     //   X[1:0]: Two unused bits
-    ili9341_command_param(0x48);
-    //ili9341_command_param(0x08);
+    if (mode == 0)
+        ili9341_command_param(0x48);
+    else if (mode == 1)
+        ili9341_command_param(0x08);
 
     // COLMOD: Pixel Format Set (0x3A)
     //   "This command sets the pixel format for the RGB image data used by the interface. DPI [2:0] 
@@ -238,15 +240,5 @@ void ili9341_init() {
     ili9341_command_param(0x01);
     // Parameter 4: End page EP07:EP00
     ili9341_command_param(0x3f);  
-
-    // Memory Write (0x2C) 
-    //   "This command is used to transfer data from MCU to frame memory. This command makes 
-    //   no change to the other driver status. When this command is accepted, the column register 
-    //   and the page register are reset to the Start Column/Start Page positions. The Start 
-    //   Column/Start Page positions are different in accordance with MADCTL setting.) Then 
-    //   D [17:0] is stored in frame memory and the column register and the page register 
-    //   incremented. Sending any other command can stop frame Write."
-    //
-    // TODO: WHY IS THIS NEEDED AT THE START?
-    //ili9341_set_command(ILI9341_RAMWR);
 }
+

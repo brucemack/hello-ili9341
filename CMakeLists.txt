@@ -7,11 +7,16 @@ set(CMAKE_CXX_STANDARD 17)
 pico_sdk_init()
 
 add_executable(main
-  font.c
   ili9341.c
-  textmode.c
-  textmode_demo.c
+  waterfall.c
 )
+
+#add_executable(main
+#  font.c
+#  ili9341.c
+#  textmode.c
+#  textmode_demo.c
+#)
 
 pico_enable_stdio_usb(main 1)
 pico_enable_stdio_uart(main 1)
