@@ -396,5 +396,5 @@ void mode0_scroll_test(int rows) {
     // Scroll
     ili9341_set_command(0x37);
     ili9341_command_param(0x00);
-    ili9341_command_param(0x80); 
+    ili9341_command_param(16); 
 }

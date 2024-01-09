@@ -26,9 +26,9 @@ int main() {
     gpio_set_dir(LED_PIN, GPIO_OUT);
         
     gpio_put(LED_PIN, 1);
-    sleep_ms(1000);
+    sleep_ms(100);
     gpio_put(LED_PIN, 0);
-    sleep_ms(1000);
+    sleep_ms(100);
 
     puts("Hello TFT!\n");
     
@@ -40,10 +40,9 @@ int main() {
     for (int i = 0; i < 24; i++) {
 
         char text[64];
-        sprintf(text, "Hello Izzy and Henry %d!\n", i)
+        sprintf(text, "Hello Izzy and Henry %d!\n", i);
         mode0_print(text);
         
-        //sleep_ms(500);
         fg = (fg+1) % 16;
         if (fg == 0) {
             bg = (bg+1) % 16;
@@ -56,7 +55,7 @@ int main() {
     sleep_ms(2000);
 
     // Scroll
-    mode00_scroll_test(0x0080);
+    mode0_scroll_test(0x0080);
 
     // Don't exit
     while (true) {

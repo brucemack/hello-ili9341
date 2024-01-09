@@ -172,6 +172,7 @@ void ili9341_init() {
     //   MH: Horizontal Refresh ORDER (0=Sends left first)
     //   X[1:0]: Two unused bits
     ili9341_command_param(0x48);
+    //ili9341_command_param(0x08);
 
     // COLMOD: Pixel Format Set (0x3A)
     //   "This command sets the pixel format for the RGB image data used by the interface. DPI [2:0] 
