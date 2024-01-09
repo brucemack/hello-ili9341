@@ -33,18 +33,33 @@ int main() {
     puts("Hello TFT!\n");
     
     mode0_set_cursor(0, 0);
+
     mode0_color_t fg = MODE0_WHITE;
     mode0_color_t bg = MODE0_BLACK;
     
-    while (1) {
-        mode0_print("Hello Izzy and Henry!\n");
-        sleep_ms(500);
+    for (int i = 0; i < 24; i++) {
+
+        char text[64];
+        sprintf(text, "Hello Izzy and Henry %d!\n", i)
+        mode0_print(text);
+        
+        //sleep_ms(500);
         fg = (fg+1) % 16;
         if (fg == 0) {
             bg = (bg+1) % 16;
             mode0_set_background(bg);
         }
         mode0_set_foreground(fg);
+    }
 
+    // Pause
+    sleep_ms(2000);
+
+    // Scroll
+    mode00_scroll_test(0x0080);
+
+    // Don't exit
+    while (true) {
+        sleep_ms(500);
     }
 }

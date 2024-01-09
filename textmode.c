@@ -383,3 +383,18 @@ void mode0_init() {
     stdio_init_all();
     ili9341_init();
 }
+
+void mode0_scroll_test(int rows) {
+    // Set scroll range
+    ili9341_set_command(0x33);
+    ili9341_command_param(0x00);
+    ili9341_command_param(0x00); 
+    ili9341_command_param(0x01);
+    ili9341_command_param(0x40); 
+    ili9341_command_param(0x00);
+    ili9341_command_param(0x00); 
+    // Scroll
+    ili9341_set_command(0x37);
+    ili9341_command_param(0x00);
+    ili9341_command_param(0x80); 
+}

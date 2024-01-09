@@ -54,4 +54,6 @@ void mode0_hide_cursor();
 void mode0_begin();
 void mode0_end();
 
+void mode0_scroll_test(int rows);
+
 #endif
