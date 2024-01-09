@@ -32,44 +32,32 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 // (pin 8) LED        Backlight control; if not controlled, connect 3.3V always bright
 // (pin 9) SDO(MISO)  SPI bus read data signal; optional
 
-// Connection to the PI. 
-//
-// IMPORTANT: Please remember that these are GP# numbers, not 
-// the physical pin numbers!
-//
-ili9341_config_t ili9341_config = {
-    .port = spi0,
-    .pin_miso = 4,
-    .pin_cs = 5,
-    .pin_sck = 2,
-    .pin_mosi = 3,
-    .pin_reset = 6,
-    .pin_dc = 7 
-};
+// This is initialized by the init() call 
+static ili9341_config_t* config = 0;
 
 static inline void cs_select() {
     asm volatile("nop \n nop \n nop");
-    gpio_put(ili9341_config.pin_cs, 0);  // Active low
+    gpio_put(config->pin_cs, 0);  // Active low
     asm volatile("nop \n nop \n nop");
 }
 
 static inline void cs_deselect() {
     asm volatile("nop \n nop \n nop");
-    gpio_put(ili9341_config.pin_cs, 1);
+    gpio_put(config->pin_cs, 1);
     asm volatile("nop \n nop \n nop");
 }
 
 void ili9341_set_command(uint8_t cmd) {
     cs_select();
-    gpio_put(ili9341_config.pin_dc, 0);
-    spi_write_blocking(ili9341_config.port, &cmd, 1);
-    gpio_put(ili9341_config.pin_dc, 1);
+    gpio_put(config->pin_dc, 0);
+    spi_write_blocking(config->port, &cmd, 1);
+    gpio_put(config->pin_dc, 1);
     cs_deselect();
 }
 
 void ili9341_command_param(uint8_t data) {
     cs_select();
-    spi_write_blocking(ili9341_config.port, &data, 1);
+    spi_write_blocking(config->port, &data, 1);
     cs_deselect();
 }
 
@@ -77,54 +65,56 @@ void ili9341_command_param16(uint16_t data) {
     uint8_t hi = (data >> 8);
     uint8_t lo = (data & 0xff);
     cs_select();
-    spi_write_blocking(ili9341_config.port, &hi, 1);
-    spi_write_blocking(ili9341_config.port, &lo, 1);
+    spi_write_blocking(config->port, &hi, 1);
+    spi_write_blocking(config->port, &lo, 1);
     cs_deselect();
 }
 
 void ili9341_write_data(void *buffer, int bytes) {
     cs_select();
-    spi_write_blocking(ili9341_config.port, buffer, bytes);
+    spi_write_blocking(config->port, buffer, bytes);
     cs_deselect();
 }
 
 void ili9341_write_data_continuous(void *buffer, int bytes) {
-    spi_write_blocking(ili9341_config.port, buffer, bytes);
+    spi_write_blocking(config->port, buffer, bytes);
 }
 
-void ili9341_init(int mode) {
+void ili9341_init(int mode, ili9341_config_t* cfg) {
+
+    config = cfg;
 
     // Configure the SPI port to run at at 0.5 MHz.
-    spi_init(ili9341_config.port, 500 * 1000);
+    spi_init(config->port, 500 * 1000);
     // TODO: UNDERSTAMD THIS
-    spi_set_baudrate(ili9341_config.port, 75000 * 1000);
+    spi_set_baudrate(config->port, 75000 * 1000);
 
     // Configure the pins that are being used for the SPI bus
-    gpio_set_function(ili9341_config.pin_miso, GPIO_FUNC_SPI);
-    gpio_set_function(ili9341_config.pin_sck, GPIO_FUNC_SPI);
-    gpio_set_function(ili9341_config.pin_mosi, GPIO_FUNC_SPI);
+    gpio_set_function(config->pin_miso, GPIO_FUNC_SPI);
+    gpio_set_function(config->pin_sck, GPIO_FUNC_SPI);
+    gpio_set_function(config->pin_mosi, GPIO_FUNC_SPI);
 
     // Chip select is active-low, so we'll initialise it to a driven-high state
-    gpio_init(ili9341_config.pin_cs);
-    gpio_set_dir(ili9341_config.pin_cs, GPIO_OUT);
+    gpio_init(config->pin_cs);
+    gpio_set_dir(config->pin_cs, GPIO_OUT);
     // TODO: THIS DOESN'T LOOK RIGHT - TEST THE CHANGE!
-    gpio_put(ili9341_config.pin_cs, 0);
+    gpio_put(config->pin_cs, 0);
 
     // Reset is active-low
-    gpio_init(ili9341_config.pin_reset);
-    gpio_set_dir(ili9341_config.pin_reset, GPIO_OUT);
-    gpio_put(ili9341_config.pin_reset, 1);
+    gpio_init(config->pin_reset);
+    gpio_set_dir(config->pin_reset, GPIO_OUT);
+    gpio_put(config->pin_reset, 1);
 
     // high = command, low = data
-    gpio_init(ili9341_config.pin_dc);
-    gpio_set_dir(ili9341_config.pin_dc, GPIO_OUT);
-    gpio_put(ili9341_config.pin_dc, 0);
+    gpio_init(config->pin_dc);
+    gpio_set_dir(config->pin_dc, GPIO_OUT);
+    gpio_put(config->pin_dc, 0);
 
     // Request a hard reset of the ILI9341 
     sleep_ms(10);
-    gpio_put(ili9341_config.pin_reset, 0);
+    gpio_put(config->pin_reset, 0);
     sleep_ms(10);
-    gpio_put(ili9341_config.pin_reset, 1);
+    gpio_put(config->pin_reset, 1);
 
     // ----------------------------------------------------------------------
 

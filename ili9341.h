@@ -28,8 +28,6 @@ typedef struct {
     uint pin_dc;
 } ili9341_config_t;
 
-extern ili9341_config_t ili9341_config;
-
 #define ILI9341_TFTWIDTH 240  ///< ILI9341 max TFT width
 #define ILI9341_TFTHEIGHT 320 ///< ILI9341 max TFT height
 
@@ -88,11 +86,8 @@ extern ili9341_config_t ili9341_config;
 
 #define ILI9341_GMCTRP1 0xE0 ///< Positive Gamma Correction
 #define ILI9341_GMCTRN1 0xE1 ///< Negative Gamma Correction
-//#define ILI9341_PWCTR6     0xFC
 
-//extern const uint8_t font6x8[];
-
-void ili9341_init(int mode);
+void ili9341_init(int mode, ili9341_config_t* config);
 void ili9341_set_command(uint8_t cmd);
 void ili9341_command_param(uint8_t data);
 void ili9341_command_param16(uint16_t data);
@@ -101,9 +96,8 @@ void ili9341_write_data_continuous(void *biffer, int bytes);
 
 /**
  * Takes RGB values and creates a 16-bit number that is suitable to be 
- * transmitted directly.
+ * transmitted directly in the correct endian format.
  */
 uint16_t makeRGB(uint8_t r, uint8_t g, uint8_t b);
-
 
 #endif

@@ -18,9 +18,25 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 
 const uint LED_PIN = 25;
 
+// Connection to the PI. 
+//
+// IMPORTANT: Please remember that these are GP# numbers, not 
+// the physical pin numbers!
+//
+ili9341_config_t ili9341_config = {
+    .port = spi0,
+    .pin_miso = 4,
+    .pin_cs = 5,
+    .pin_sck = 2,
+    .pin_mosi = 3,
+    .pin_reset = 6,
+    .pin_dc = 7 
+};
+
 int main() {
 
-    mode0_init();
+    stdio_init_all();
+    ili9341_init(0, &ili9341_config);
 
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
@@ -37,7 +53,10 @@ int main() {
     mode0_color_t fg = MODE0_WHITE;
     mode0_color_t bg = MODE0_BLACK;
     
-    for (int i = 0; i < 24; i++) {
+    int i = 0; 
+    while (true) {
+
+        i++;
 
         char text[64];
         sprintf(text, "Hello Izzy and Henry %d!\n", i);
@@ -49,16 +68,5 @@ int main() {
             mode0_set_background(bg);
         }
         mode0_set_foreground(fg);
-    }
-
-    // Pause
-    sleep_ms(2000);
-
-    // Scroll
-    mode0_scroll_test(0x0080);
-
-    // Don't exit
-    while (true) {
-        sleep_ms(500);
     }
 }

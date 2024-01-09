@@ -20,6 +20,21 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 
 const uint LED_PIN = 25;
 
+// Connection to the PI. 
+//
+// IMPORTANT: Please remember that these are GP# numbers, not 
+// the physical pin numbers!
+//
+ili9341_config_t ili9341_config = {
+    .port = spi0,
+    .pin_miso = 4,
+    .pin_cs = 5,
+    .pin_sck = 2,
+    .pin_mosi = 3,
+    .pin_reset = 6,
+    .pin_dc = 7 
+};
+
 int main() {
 
     stdio_init_all();
@@ -34,7 +49,7 @@ int main() {
 
     puts("Waterfall demonstration 2\n");
 
-    ili9341_init(1);
+    ili9341_init(0, &ili9341_config);
 
     // Clear and setup top/bottom borders
 

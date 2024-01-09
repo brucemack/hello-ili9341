@@ -381,11 +381,6 @@ void mode0_scroll_vertical(int8_t amount) {
     mode0_end();
 }
 
-void mode0_init() {
-    stdio_init_all();
-    ili9341_init(0);
-}
-
 void mode0_scroll_test(int rows) {
     // Set scroll range
     ili9341_set_command(0x33);
