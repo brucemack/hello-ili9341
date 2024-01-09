@@ -180,10 +180,7 @@ void ili9341_init(int mode) {
     //   BGR: RGB-BGR Order. (1=Blue/Green/Red)
     //   MH: Horizontal Refresh ORDER (0=Sends left first)
     //   X[1:0]: Two unused bits
-    if (mode == 0)
-        ili9341_command_param(0x48);
-    else if (mode == 1)
-        ili9341_command_param(0x48);
+    ili9341_command_param(0x48);
 
     // COLMOD: Pixel Format Set (0x3A)
     //   "This command sets the pixel format for the RGB image data used by the interface. DPI [2:0] 
@@ -215,6 +212,7 @@ void ili9341_init(int mode) {
     // Display ON (0x29)
     ili9341_set_command(ILI9341_DISPON);
 
+    /*
     // Column Address Set (0x2A) 
     //   "This command is used to define area of frame memory where MCU can access. This command 
     //   makes no change on the other driver status. The values of SC [15:0] and EC [15:0] are 
@@ -249,6 +247,7 @@ void ili9341_init(int mode) {
     ili9341_command_param(0x01);
     // Parameter 4: End page EP07:EP00
     ili9341_command_param(0x3f);  
+    */
 }
 
 uint16_t makeRGB(uint8_t r, uint8_t g, uint8_t b) {
