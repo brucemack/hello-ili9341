@@ -36,16 +36,11 @@ int main() {
 
     ili9341_init(1);
 
-    // Clear
-    // Column address range set
-    ili9341_set_command(ILI9341_CASET);
-    // SC=0, EC=239
-    ili9341_command_param(0x00);
-    ili9341_command_param(0x00); 
-    ili9341_command_param(0x00);
-    ili9341_command_param(0xef); 
+    // Clear and setup top/bottom borders
 
-    // Page address range set
+    ili9341_set_command(ILI9341_CASET);
+    ili9341_command_param16(0x00);
+    ili9341_command_param16(239); 
     ili9341_set_command(ILI9341_PASET);
     ili9341_command_param16(0);
     ili9341_command_param16(319);
@@ -55,37 +50,31 @@ int main() {
     uint16_t fg0 = makeRGB(0, 0b111111, 0); 
     uint16_t fg1 = 0xffff; 
 
+    uint16_t buffer[240];
+
     for (int i = 0; i < 320; i++) {
-        uint16_t buffer[240];
         for (int j = 0; j < 240; j++) {
             if (i < 10) {
                 buffer[j] = fg0;
-            }
-            else if (i >= 310) {
+            } else if (i >= 310) {
                 buffer[j] = fg1;
-            }
-            else {
+            } else {
                 buffer[j] = 0;
             }
         }
         ili9341_write_data(buffer, 240 * 2);
     }
 
-    //int y = 319;
+    // The starting Y location is at the bottom of the "middle area"
     int y = 309;
     int x = 120;
 
-    for (int i = 0; i < 320; i++) {
+    while (true) {
 
-        // Column address range set
         ili9341_set_command(ILI9341_CASET);
-        // SC=0, EC=239
-        ili9341_command_param(0x00);
-        ili9341_command_param(0x00); 
-        ili9341_command_param(0x00);
-        ili9341_command_param(0xef); 
-
-        // Page address range set
+        ili9341_command_param16(0x00);
+        ili9341_command_param16(239); 
+        // Notice that we are moving to different page locations each time
         ili9341_set_command(ILI9341_PASET);
         ili9341_command_param16(y);
         ili9341_command_param16(y);
@@ -100,42 +89,37 @@ int main() {
         buffer[x] = fg;
         ili9341_write_data(buffer, 240 * 2);
 
-        // Wrap
+        // Wrap around, avoiding the top and bottom areas
         y = y + 1;
-        //if (y > 319) {
         if (y > 309) {
            y = 10;
         }
 
         // Scroll up range
         ili9341_set_command(0x33);
+        // Top 10 pages will be untouched
         ili9341_command_param16(10);
-        //ili9341_command_param16(320 - 10);
-        //ili9341_command_param16(0);
+        // Middle area is changed
         ili9341_command_param16(320 - 20);
+        // Bottom 10 pages will be untouched
         ili9341_command_param16(10);
 
-        // Scroll
+        // Scroll to the next row
         ili9341_set_command(0x37);
         ili9341_command_param16(y + 1);
 
+        // Drift around
         if (rand() % 10 >= 5) {
             x = x + 1;
         } else {
             x = x - 1;
         }
-
         if (x < 0) {
             x = 0;
         }
         if (x > 239) {
             x = 239;
         }
-
-        sleep_ms(20);
-    }
-
-    while (true) {
-        sleep_ms(10);
     }
 }
+
