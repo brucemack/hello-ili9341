@@ -95,6 +95,7 @@ extern ili9341_config_t ili9341_config;
 void ili9341_init(int mode);
 void ili9341_set_command(uint8_t cmd);
 void ili9341_command_param(uint8_t data);
+void ili9341_command_param16(uint16_t data);
 void ili9341_write_data(void *buffer, int bytes);
 void ili9341_write_data_continuous(void *biffer, int bytes);
 #endif

@@ -73,6 +73,17 @@ void ili9341_command_param(uint8_t data) {
     cs_deselect();
 }
 
+void ili9341_command_param16(uint16_t data) {
+    uint8_t hi = (data >> 8);
+    uint8_t lo = (data & 0xff);
+    cs_select();
+    spi_write_blocking(ili9341_config.port, &hi, 1);
+    cs_deselect();
+    cs_select();
+    spi_write_blocking(ili9341_config.port, &lo, 1);
+    cs_deselect();
+}
+
 void ili9341_write_data(void *buffer, int bytes) {
     cs_select();
     spi_write_blocking(ili9341_config.port, buffer, bytes);
@@ -174,7 +185,7 @@ void ili9341_init(int mode) {
     if (mode == 0)
         ili9341_command_param(0x48);
     else if (mode == 1)
-        ili9341_command_param(0x08);
+        ili9341_command_param(0x48);
 
     // COLMOD: Pixel Format Set (0x3A)
     //   "This command sets the pixel format for the RGB image data used by the interface. DPI [2:0] 
