@@ -73,14 +73,6 @@ void ili9341_command_param(uint8_t data) {
     cs_deselect();
 }
 
-//inline void ili9341_start_writing() {
-//    cs_select();
-//}
-
-//inline void ili9341_stop_writing() {
-//    cs_deselect();
-//}
-
 void ili9341_write_data(void *buffer, int bytes) {
     cs_select();
     spi_write_blocking(ili9341_config.port, buffer, bytes);
@@ -95,6 +87,7 @@ void ili9341_init() {
 
     // Configure the SPI port to run at at 0.5 MHz.
     spi_init(ili9341_config.port, 500 * 1000);
+    // TODO: UNDERSTAMD THIS
     spi_set_baudrate(ili9341_config.port, 75000 * 1000);
 
     // Configure the pins that are being used for the SPI bus
@@ -184,7 +177,6 @@ void ili9341_init() {
     //   "This command sets the pixel format for the RGB image data used by the interface. DPI [2:0] 
     //   is the pixel format select of RGB interface and DBI [2:0] is the pixel format of MCU 
     //   interface.""
-    // TODO: CHECK TO SEE IF THE DPI stuff matters
     ili9341_set_command(ILI9341_PIXFMT);
     // 0101 0101
     // From MSB to LSB:
@@ -192,7 +184,7 @@ void ili9341_init() {
     //   DPI[2:0]: For RGB interface. (101=16 bits per pixel)
     //   X: Unused
     //   DBI[2:0]: For MCE interface.  (101=16 bits per pixel)
-    ili9341_command_param(0x55);
+    ili9341_command_param(0x05);
 
     // Frame Rate Control (In Normal Mode/Full Colors) (xB1) 
     ili9341_set_command(ILI9341_FRMCTR1);
@@ -255,9 +247,5 @@ void ili9341_init() {
     //   incremented. Sending any other command can stop frame Write."
     //
     // TODO: WHY IS THIS NEEDED AT THE START?
-    ili9341_set_command(ILI9341_RAMWR);
-}
-
-uint16_t swap_bytes(uint16_t color) {
-    return (color>>8) | (color<<8);
+    //ili9341_set_command(ILI9341_RAMWR);
 }

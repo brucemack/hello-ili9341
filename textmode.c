@@ -306,7 +306,7 @@ void mode0_draw_screen() {
     ili9341_set_command(ILI9341_RAMWR);
 
     // This demo writes data one column at a time.  Each 
-    uint16_t buffer[6*240];  
+    uint16_t buffer[6 * 240];  
 
     int screen_idx = 0;
 
@@ -346,14 +346,16 @@ void mode0_draw_screen() {
         ili9341_write_data(buffer, 6 * 240 * 2);
     }
     
-    uint16_t extra_buffer[2*240] = { 0 };
-    ili9341_write_data(extra_buffer, 2*240*2);
-
+    // 53 columns of text * 6 pixels wide for each character means
+    // we only sent 318 columns of pixels. In order to avoid leaving
+    // garbage on the right of the screen we write black here:
+    uint16_t extra_buffer[2 * 240] = { 0 };
+    ili9341_write_data(extra_buffer, 2 * 240 * 2);
 }
 
 void mode0_scroll_vertical(int8_t amount) {
-    mode0_begin();
 
+    mode0_begin();
     
     if (amount > 0) {
         int size1 = TEXT_WIDTH*amount;

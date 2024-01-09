@@ -90,13 +90,11 @@ extern ili9341_config_t ili9341_config;
 #define ILI9341_GMCTRN1 0xE1 ///< Negative Gamma Correction
 //#define ILI9341_PWCTR6     0xFC
 
-extern const uint8_t font6x8[];
+//extern const uint8_t font6x8[];
 
 void ili9341_init();
 void ili9341_set_command(uint8_t cmd);
 void ili9341_command_param(uint8_t data);
 void ili9341_write_data(void *buffer, int bytes);
-//void ili9341_start_writing();
-//void ili9341_stop_writing();
 void ili9341_write_data_continuous(void *biffer, int bytes);
 #endif
