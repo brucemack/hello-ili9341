@@ -120,6 +120,7 @@ int main() {
         if (x > 239) {
             x = 239;
         }
+        sleep_ms(5);
     }
 }
 

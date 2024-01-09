@@ -78,8 +78,6 @@ void ili9341_command_param16(uint16_t data) {
     uint8_t lo = (data & 0xff);
     cs_select();
     spi_write_blocking(ili9341_config.port, &hi, 1);
-    cs_deselect();
-    cs_select();
     spi_write_blocking(ili9341_config.port, &lo, 1);
     cs_deselect();
 }
