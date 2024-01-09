@@ -27,12 +27,12 @@ const uint LED_PIN = 25;
 //
 ili9341_config_t ili9341_config = {
     .port = spi0,
-    .pin_miso = 4,
-    .pin_cs = 5,
-    .pin_sck = 2,
-    .pin_mosi = 3,
-    .pin_reset = 6,
-    .pin_dc = 7 
+    .pin_sck =   18,
+    .pin_mosi =  19,  // (SPI_TX)
+    .pin_miso =  16,  // (SPI_RX)
+    .pin_cs =    17,
+    .pin_reset = 14,
+    .pin_dc =    15 
 };
 
 int main() {
