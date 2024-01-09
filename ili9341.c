@@ -19,7 +19,6 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "ili9341.h"
 
-
 // TFT Display Module Connections:
 //
 // (pin 1) VCC        5V/3.3V power input
@@ -78,6 +77,12 @@ void ili9341_write_data(void *buffer, int bytes) {
 
 void ili9341_write_data_continuous(void *buffer, int bytes) {
     spi_write_blocking(config->port, buffer, bytes);
+}
+
+uint16_t makeRGB(uint8_t r, uint8_t g, uint8_t b) {
+  uint16_t a = ((uint16_t)r << 11) | ((uint16_t)g << 5) | (uint16_t)b;
+  // Swap endians
+  return a >> 8 | a << 8; 
 }
 
 void ili9341_init(int mode, ili9341_config_t* cfg) {
@@ -201,47 +206,4 @@ void ili9341_init(int mode, ili9341_config_t* cfg) {
 
     // Display ON (0x29)
     ili9341_set_command(ILI9341_DISPON);
-
-    /*
-    // Column Address Set (0x2A) 
-    //   "This command is used to define area of frame memory where MCU can access. This command 
-    //   makes no change on the other driver status. The values of SC [15:0] and EC [15:0] are 
-    //   referred when RAMWR command comes. Each value represents one column line in the 
-    //   Frame Memory."
-    //
-    // Here we set the start column to 0 and the end column to 0239
-    //
-    ili9341_set_command(ILI9341_CASET);
-    // Parameter 1: Start column SC15:SC08
-    ili9341_command_param(0x00);
-    // Parameter 2: Start column SC07:SC00
-    ili9341_command_param(0x00);  
-    // Parameter 3: End column EC15:EC08
-    ili9341_command_param(0x00);
-    // Parameter 4: Edn column EC07:EC00
-    ili9341_command_param(0xef);  
-
-    // Page Address Set (0x2B)
-    //   "This command is used to define area of frame memory where MCU can access. This command 
-    //   makes no change on the other driver status. The values of SP [15:0] and EP [15:0] are 
-    //   referred when RAMWR command comes. Each value represents one Page line in the 
-    //   Frame Memory."
-    // 
-    // Here we set the start page to 0 and teh end page to 319
-    ili9341_set_command(ILI9341_PASET);
-    // Parameter 1: Start page SP15:SP08
-    ili9341_command_param(0x00);
-    // Parameter 2: Start page SP07:SP00
-    ili9341_command_param(0x00);  
-    // Parameter 3: End page EP15:EP08
-    ili9341_command_param(0x01);
-    // Parameter 4: End page EP07:EP00
-    ili9341_command_param(0x3f);  
-    */
-}
-
-uint16_t makeRGB(uint8_t r, uint8_t g, uint8_t b) {
-  uint16_t a = ((uint16_t)r << 11) | ((uint16_t)g << 5) | (uint16_t)b;
-  // Swap endians
-  return a >> 8 | a << 8; 
 }

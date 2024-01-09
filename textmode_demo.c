@@ -14,6 +14,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "pico/stdlib.h"
 #include <stdio.h>
 
+#include "ili9341.h"
 #include "textmode.h"
 
 const uint LED_PIN = 25;
