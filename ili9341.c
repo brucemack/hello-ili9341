@@ -95,7 +95,7 @@ void ili9341_init() {
 
     // Configure the SPI port to run at at 0.5 MHz.
     spi_init(ili9341_config.port, 500 * 1000);
-    //int baudrate = spi_set_baudrate(ili9341_config.port, 75000 * 1000);
+    spi_set_baudrate(ili9341_config.port, 75000 * 1000);
 
     // Configure the pins that are being used for the SPI bus
     gpio_set_function(ili9341_config.pin_miso, GPIO_FUNC_SPI);
