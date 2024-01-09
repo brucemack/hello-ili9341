@@ -38,9 +38,11 @@ int main() {
 
     // Clear and setup top/bottom borders
 
+    // The column address range will always be the same
     ili9341_set_command(ILI9341_CASET);
     ili9341_command_param16(0x00);
     ili9341_command_param16(239); 
+
     ili9341_set_command(ILI9341_PASET);
     ili9341_command_param16(0);
     ili9341_command_param16(319);
@@ -65,16 +67,28 @@ int main() {
         ili9341_write_data(buffer, 240 * 2);
     }
 
+    // Setup the scroll range
+    ili9341_set_command(0x33);
+    // Top 10 pages will be untouched
+    ili9341_command_param16(10);
+    // Middle area is scrolled
+    ili9341_command_param16(320 - 20);
+    // Bottom 10 pages will be untouched
+    ili9341_command_param16(10);
+
     // The starting Y location is at the bottom of the "middle area"
-    int y = 309;
+    int y = 10;
     int x = 120;
 
     while (true) {
 
-        ili9341_set_command(ILI9341_CASET);
-        ili9341_command_param16(0x00);
-        ili9341_command_param16(239); 
-        // Notice that we are moving to different page locations each time
+        // Scroll so that the current row is at the bottom of the middle
+        // area.
+        ili9341_set_command(0x37);
+        ili9341_command_param16(y);
+
+        // Notice that we are moving to different page locations each time.
+        // This is necessary to achieve the scrolling visual
         ili9341_set_command(ILI9341_PASET);
         ili9341_command_param16(y);
         ili9341_command_param16(y);
@@ -94,19 +108,6 @@ int main() {
         if (y > 309) {
            y = 10;
         }
-
-        // Scroll up range
-        ili9341_set_command(0x33);
-        // Top 10 pages will be untouched
-        ili9341_command_param16(10);
-        // Middle area is changed
-        ili9341_command_param16(320 - 20);
-        // Bottom 10 pages will be untouched
-        ili9341_command_param16(10);
-
-        // Scroll to the next row
-        ili9341_set_command(0x37);
-        ili9341_command_param16(y + 1);
 
         // Drift around
         if (rand() % 10 >= 5) {
