@@ -83,11 +83,11 @@ int main() {
         // Start writing into display RAM
         ili9341_set_command(ILI9341_RAMWR);
 
-        int16_t fg = SWAP_BYTES(0x02B0); // Blue: 00000 010101 10000
+        uint16_t fg = SWAP_BYTES(0x02B0); // Blue: 00000 010101 10000
 
         // Write a line of spectrum
         uint16_t buffer[240] = { 0 };
-        buffer[x] = 0xffff;
+        buffer[x] = fg;
         ili9341_write_data(buffer, 240 * 2);
 
         y = y + 1;
