@@ -98,4 +98,12 @@ void ili9341_command_param(uint8_t data);
 void ili9341_command_param16(uint16_t data);
 void ili9341_write_data(void *buffer, int bytes);
 void ili9341_write_data_continuous(void *biffer, int bytes);
+
+/**
+ * Takes RGB values and creates a 16-bit number that is suitable to be 
+ * transmitted directly.
+ */
+uint16_t makeRGB(uint8_t r, uint8_t g, uint8_t b);
+
+
 #endif

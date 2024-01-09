@@ -253,3 +253,8 @@ void ili9341_init(int mode) {
     ili9341_command_param(0x3f);  
 }
 
+uint16_t makeRGB(uint8_t r, uint8_t g, uint8_t b) {
+  uint16_t a = ((uint16_t)r << 11) | ((uint16_t)g << 5) | (uint16_t)b;
+  // Swap endians
+  return a >> 8 | a << 8; 
+}

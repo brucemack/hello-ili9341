@@ -47,25 +47,35 @@ int main() {
 
     // Page address range set
     ili9341_set_command(ILI9341_PASET);
-    // SP=0, EP=319
-    ili9341_command_param(0x00);
-    ili9341_command_param(0x00);
-    ili9341_command_param(0x01);
-    ili9341_command_param(0x3f);
+    ili9341_command_param16(0);
+    ili9341_command_param16(319);
 
-    // Start writing into display RAM
     ili9341_set_command(ILI9341_RAMWR);
 
-    uint16_t buffer[240] = { 0 };
+    uint16_t fg0 = makeRGB(0, 0b111111, 0); 
+    uint16_t fg1 = 0xffff; 
+
     for (int i = 0; i < 320; i++) {
+        uint16_t buffer[240];
+        for (int j = 0; j < 240; j++) {
+            if (i < 10) {
+                buffer[j] = fg0;
+            }
+            else if (i >= 310) {
+                buffer[j] = fg1;
+            }
+            else {
+                buffer[j] = 0;
+            }
+        }
         ili9341_write_data(buffer, 240 * 2);
     }
 
-    // Don't exit
-    int y = 319;
+    //int y = 319;
+    int y = 309;
     int x = 120;
 
-    for (int i = 0; i < 240; i++) {
+    for (int i = 0; i < 320; i++) {
 
         // Column address range set
         ili9341_set_command(ILI9341_CASET);
@@ -90,25 +100,26 @@ int main() {
         buffer[x] = fg;
         ili9341_write_data(buffer, 240 * 2);
 
+        // Wrap
         y = y + 1;
-        if (y > 319) {
-            y = 0;
+        //if (y > 319) {
+        if (y > 309) {
+           y = 10;
         }
 
         // Scroll up range
         ili9341_set_command(0x33);
-        ili9341_command_param(0x00);
-        ili9341_command_param(0x00); 
-        ili9341_command_param(0x01);
-        ili9341_command_param(0x40); 
-        ili9341_command_param(0x00);
-        ili9341_command_param(0x00); 
+        ili9341_command_param16(10);
+        //ili9341_command_param16(320 - 10);
+        //ili9341_command_param16(0);
+        ili9341_command_param16(320 - 20);
+        ili9341_command_param16(10);
 
         // Scroll
         ili9341_set_command(0x37);
         ili9341_command_param16(y + 1);
 
-        if (rand() % 10 > 5) {
+        if (rand() % 10 >= 5) {
             x = x + 1;
         } else {
             x = x - 1;
