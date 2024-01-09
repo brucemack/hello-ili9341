@@ -66,8 +66,7 @@ extern ili9341_config_t ili9341_config;
 #define ILI9341_VSCRSADD 0x37 ///< Vertical Scrolling Start Address
 #define ILI9341_PIXFMT 0x3A   ///< COLMOD: Pixel Format Set
 
-#define ILI9341_FRMCTR1                                                        \
-  0xB1 ///< Frame Rate Control (In Normal Mode/Full Colors)
+#define ILI9341_FRMCTR1 0xB1 ///< Frame Rate Control (In Normal Mode/Full Colors)
 #define ILI9341_FRMCTR2 0xB2 ///< Frame Rate Control (In Idle Mode/8 colors)
 #define ILI9341_FRMCTR3                                                        \
   0xB3 ///< Frame Rate control (In Partial Mode/Full Colors)
@@ -97,7 +96,7 @@ void ili9341_init();
 void ili9341_set_command(uint8_t cmd);
 void ili9341_command_param(uint8_t data);
 void ili9341_write_data(void *buffer, int bytes);
-void ili9341_start_writing();
-void ili9341_stop_writing();
+//void ili9341_start_writing();
+//void ili9341_stop_writing();
 void ili9341_write_data_continuous(void *biffer, int bytes);
 #endif

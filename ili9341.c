@@ -73,9 +73,13 @@ void ili9341_command_param(uint8_t data) {
     cs_deselect();
 }
 
-inline void ili9341_start_writing() {
-    cs_select();
-}
+//inline void ili9341_start_writing() {
+//    cs_select();
+//}
+
+//inline void ili9341_stop_writing() {
+//    cs_deselect();
+//}
 
 void ili9341_write_data(void *buffer, int bytes) {
     cs_select();
@@ -87,16 +91,13 @@ void ili9341_write_data_continuous(void *buffer, int bytes) {
     spi_write_blocking(ili9341_config.port, buffer, bytes);
 }
 
-inline void ili9341_stop_writing() {
-    cs_deselect();
-}
-
 void ili9341_init() {
 
-    // This example will use SPI0 at 0.5MHz.
+    // Configure the SPI port to run at at 0.5 MHz.
     spi_init(ili9341_config.port, 500 * 1000);
-    int baudrate = spi_set_baudrate(ili9341_config.port, 75000 * 1000);
+    //int baudrate = spi_set_baudrate(ili9341_config.port, 75000 * 1000);
 
+    // Configure the pins that are being used for the SPI bus
     gpio_set_function(ili9341_config.pin_miso, GPIO_FUNC_SPI);
     gpio_set_function(ili9341_config.pin_sck, GPIO_FUNC_SPI);
     gpio_set_function(ili9341_config.pin_mosi, GPIO_FUNC_SPI);
@@ -104,6 +105,7 @@ void ili9341_init() {
     // Chip select is active-low, so we'll initialise it to a driven-high state
     gpio_init(ili9341_config.pin_cs);
     gpio_set_dir(ili9341_config.pin_cs, GPIO_OUT);
+    // TODO: THIS DOESN'T LOOK RIGHT - TEST THE CHANGE!
     gpio_put(ili9341_config.pin_cs, 0);
 
     // Reset is active-low
@@ -116,6 +118,7 @@ void ili9341_init() {
     gpio_set_dir(ili9341_config.pin_dc, GPIO_OUT);
     gpio_put(ili9341_config.pin_dc, 0);
 
+    // Request a hard reset of the ILI9341 
     sleep_ms(10);
     gpio_put(ili9341_config.pin_reset, 0);
     sleep_ms(10);
@@ -123,53 +126,135 @@ void ili9341_init() {
 
     // ----------------------------------------------------------------------
 
-    ili9341_set_command(0x01);//soft reset
+    // Software reset (0x01)
+    //   "It will be necessary to wait 5msec before sending new command following software reset. The 
+    //   display module loads all display supplier factory default values to the registers during 
+    //   this 5msec."
+    ili9341_set_command(ILI9341_SWRESET);
+    // TODO: CHECK SHORTER?
     sleep_ms(100);
 
+    // Gamma Set (0x26) 
+    //   "This command is used to select the desired Gamma curve for the current display. A maximum of 
+    //   4 fixed gamma curves can be selected."
     ili9341_set_command(ILI9341_GAMMASET);
+    // Curve 1 is selected because it's the only one that is built into the chip.
     ili9341_command_param(0x01);
 
-    // positive gamma correction
+    // Positive gamma correction (0xE0)
+    //   "Set the gray scale voltage to adjust the gamma characteristics of the TFT panel."
     ili9341_set_command(ILI9341_GMCTRP1);
-    ili9341_write_data((uint8_t[15]){ 0x0f, 0x31, 0x2b, 0x0c, 0x0e, 0x08, 0x4e, 0xf1, 0x37, 0x07, 0x10, 0x03, 0x0e, 0x09, 0x00 }, 15);
+    // There are 15 parameters being set.
+    // TODO: UNDERSTAND THESE PARAMETERS
+    ili9341_write_data((uint8_t[15])
+        { 
+            0x0f, 0x31, 0x2b, 0x0c, 0x0e, 0x08, 0x4e, 0xf1, 0x37, 0x07, 0x10, 0x03, 0x0e, 0x09, 0x00 
+        }, 15);
 
-    // negative gamma correction
+    // Negative gamma correction (0xE1)
+    //   "Set the gray scale voltage to adjust the gamma characteristics of the TFT panel"
     ili9341_set_command(ILI9341_GMCTRN1);
-    ili9341_write_data((uint8_t[15]){ 0x00, 0x0e, 0x14, 0x03, 0x11, 0x07, 0x31, 0xc1, 0x48, 0x08, 0x0f, 0x0c, 0x31, 0x36, 0x0f }, 15);
+    // There are 15 parameters being set.
+    // TODO: UNDERSTAND THESE PARAMETERS
+    ili9341_write_data((uint8_t[15])
+        { 
+            0x00, 0x0e, 0x14, 0x03, 0x11, 0x07, 0x31, 0xc1, 0x48, 0x08, 0x0f, 0x0c, 0x31, 0x36, 0x0f 
+        }, 15);
 
-    // memory access control
+    // Memory access control (0x36)
+    //   "This command defines read/write scanning direction of frame memory"
     ili9341_set_command(ILI9341_MADCTL);
+    // 0100 1000
+    //
+    // From page 208 of the datasheet:
+    //
+    // 010 = "Direct to (239-Physical Column Pointer), Direct to Physical Page Pointer"
+    //
+    // From MSB to LSB:
+    //   MY: Row address order (0)
+    //   MX: Column address order (1)
+    //   MV: Column/row exchange (0)
+    //   ML: Vertical refresh order (0=Sends top first)
+    //   BGR: RGB-BGR Order. (1=Blue/Green/Red)
+    //   MH: Horizontal Refresh ORDER (0=Sends left first)
+    //   X[1:0]: Two unused bits
     ili9341_command_param(0x48);
 
-    // pixel format
+    // COLMOD: Pixel Format Set (0x3A)
+    //   "This command sets the pixel format for the RGB image data used by the interface. DPI [2:0] 
+    //   is the pixel format select of RGB interface and DBI [2:0] is the pixel format of MCU 
+    //   interface.""
+    // TODO: CHECK TO SEE IF THE DPI stuff matters
     ili9341_set_command(ILI9341_PIXFMT);
-    ili9341_command_param(0x55);  // 16-bit
+    // 0101 0101
+    // From MSB to LSB:
+    //   X: Unused
+    //   DPI[2:0]: For RGB interface. (101=16 bits per pixel)
+    //   X: Unused
+    //   DBI[2:0]: For MCE interface.  (101=16 bits per pixel)
+    ili9341_command_param(0x55);
 
-    // frame rate; default, 70 Hz
+    // Frame Rate Control (In Normal Mode/Full Colors) (xB1) 
     ili9341_set_command(ILI9341_FRMCTR1);
+    // Parameter 1=0000 0000
+    //   0[5:0] Zeroes
+    //   DIVA[1:0]: Division ratio (00=set to 1)
+    // Parameter 2=0001 1101
+    //   0:[2:0] Zeroes
+    //   RTNA[4:0]: 70 Hz
     ili9341_command_param(0x00);
     ili9341_command_param(0x1B);
 
-    // exit sleep
+    // Sleep Out (0x11) 
     ili9341_set_command(ILI9341_SLPOUT);
 
-    // display on
+    // Display ON (0x29)
     ili9341_set_command(ILI9341_DISPON);
 
-    // column address set
+    // Column Address Set (0x2A) 
+    //   "This command is used to define area of frame memory where MCU can access. This command 
+    //   makes no change on the other driver status. The values of SC [15:0] and EC [15:0] are 
+    //   referred when RAMWR command comes. Each value represents one column line in the 
+    //   Frame Memory."
+    //
+    // Here we set the start column to 0 and the end column to 0239
+    //
     ili9341_set_command(ILI9341_CASET);
+    // Parameter 1: Start column SC15:SC08
     ili9341_command_param(0x00);
-    ili9341_command_param(0x00);  // start column
+    // Parameter 2: Start column SC07:SC00
+    ili9341_command_param(0x00);  
+    // Parameter 3: End column EC15:EC08
     ili9341_command_param(0x00);
-    ili9341_command_param(0xef);  // end column -> 239
+    // Parameter 4: Edn column EC07:EC00
+    ili9341_command_param(0xef);  
 
-    // page address set
+    // Page Address Set (0x2B)
+    //   "This command is used to define area of frame memory where MCU can access. This command 
+    //   makes no change on the other driver status. The values of SP [15:0] and EP [15:0] are 
+    //   referred when RAMWR command comes. Each value represents one Page line in the 
+    //   Frame Memory."
+    // 
+    // Here we set the start page to 0 and teh end page to 319
     ili9341_set_command(ILI9341_PASET);
+    // Parameter 1: Start page SP15:SP08
     ili9341_command_param(0x00);
-    ili9341_command_param(0x00);  // start page
+    // Parameter 2: Start page SP07:SP00
+    ili9341_command_param(0x00);  
+    // Parameter 3: End page EP15:EP08
     ili9341_command_param(0x01);
-    ili9341_command_param(0x3f);  // end page -> 319
+    // Parameter 4: End page EP07:EP00
+    ili9341_command_param(0x3f);  
 
+    // Memory Write (0x2C) 
+    //   "This command is used to transfer data from MCU to frame memory. This command makes 
+    //   no change to the other driver status. When this command is accepted, the column register 
+    //   and the page register are reset to the Start Column/Start Page positions. The Start 
+    //   Column/Start Page positions are different in accordance with MADCTL setting.) Then 
+    //   D [17:0] is stored in frame memory and the column register and the page register 
+    //   incremented. Sending any other command can stop frame Write."
+    //
+    // TODO: WHY IS THIS NEEDED AT THE START?
     ili9341_set_command(ILI9341_RAMWR);
 }
 

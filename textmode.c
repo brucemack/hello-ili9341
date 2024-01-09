@@ -137,21 +137,34 @@ static uint8_t colors[TEXT_HEIGHT * TEXT_WIDTH] = { 0 };
 static uint8_t show_cursor = 0;
 
 static int depth = 0;
+
+/*
+Color notes:
+
+Transmit format (16-bit):
+| R4 R3 R2 R1 R0 G5 G4 G3 | G2 G1 G0 B4 B3 B2 B1 B0 |
+
+The representation below uses the same order as the transmit format.
+BUT REMEMBER: Cortex M0 is little endian by default so we need to 
+*swap the bytes* to ensure that the bits are streamed out 
+on the SPI interface in the same order as they are being typed into
+the source code below.
+*/
 static uint16_t palette[16] = {
-    SWAP_BYTES(0x0000),
-    SWAP_BYTES(0x49E5),
-    SWAP_BYTES(0xB926),
+    SWAP_BYTES(0x0000), // Black
+    SWAP_BYTES(0x49E5), 
+    SWAP_BYTES(0xB926), // Red:  10111 001001 00110
     SWAP_BYTES(0xE371),
-    SWAP_BYTES(0x9CF3),
+    SWAP_BYTES(0x9CF3), // Grey: 10011 100111 10011
     SWAP_BYTES(0xA324),
     SWAP_BYTES(0xEC46),
     SWAP_BYTES(0xF70D),
-    SWAP_BYTES(0xffff),
+    SWAP_BYTES(0xffff), // White
     SWAP_BYTES(0x1926),
     SWAP_BYTES(0x2A49),
     SWAP_BYTES(0x4443),
     SWAP_BYTES(0xA664),
-    SWAP_BYTES(0x02B0),
+    SWAP_BYTES(0x02B0), // Blue: 00000 010101 10000
     SWAP_BYTES(0x351E),
     SWAP_BYTES(0xB6FD)
 };
@@ -270,55 +283,67 @@ void mode0_draw_screen() {
     // assert depth == 0?
     depth = 0;
     
-    // setup to draw the whole screen
-    
-    // column address set
+    // This simple demonstration draws the ENTIRE SCREEN each time (based
+    // on the text memory that we have)
+
+    // Column address set
     ili9341_set_command(ILI9341_CASET);
+    // SC=0, EC=239
     ili9341_command_param(0x00);
-    ili9341_command_param(0x00);  // start column
+    ili9341_command_param(0x00); 
     ili9341_command_param(0x00);
-    ili9341_command_param(0xef);  // end column -> 239
+    ili9341_command_param(0xef); 
 
-    // page address set
+    // Page address set
     ili9341_set_command(ILI9341_PASET);
+    // SP=0, EP=319
     ili9341_command_param(0x00);
-    ili9341_command_param(0x00);  // start page
+    ili9341_command_param(0x00);
     ili9341_command_param(0x01);
-    ili9341_command_param(0x3f);  // end page -> 319
+    ili9341_command_param(0x3f);
 
-    // start writing
+    // Start writing into display RAM
     ili9341_set_command(ILI9341_RAMWR);
 
-    uint16_t buffer[6*240];  // 'amount' pixels wide, 240 pixels tall
+    // This demo writes data one column at a time.  Each 
+    uint16_t buffer[6*240];  
 
     int screen_idx = 0;
-    for (int x=0; x<TEXT_WIDTH; x++) {
-        // create one column of screen information
-        
+
+    // For each text column
+    for (int x = 0; x < TEXT_WIDTH; x++) {
+
+        // Create one column of screen information        
         uint16_t *buffer_idx = buffer;
         
-        for (int bit=0; bit<6; bit++) {
-            uint8_t mask = 64>>bit;
-            for (int y=TEXT_HEIGHT-1; y>=0; y--) {
-                uint8_t character = screen[y*53+x];
-                uint16_t fg_color = palette[colors[y*53+x] >> 4];
-                uint16_t bg_color = palette[colors[y*53+x] & 0xf];
+        // The characters are 6 pixels wide
+        for (int bit = 0; bit < 6; bit++) {
+            uint8_t mask = 64 >> bit;
+            // For each text row, STARTING FROM THE BOTTOM
+            for (int y = TEXT_HEIGHT - 1; y >=0; y--) {
 
+                // The FG color is stored in the top 4 bits of the local buffer
+                uint16_t fg_color = palette[colors[y * TEXT_WIDTH + x] >> 4];
+                // The BG color is stored in the bottom 4 bits of the local buffer
+                uint16_t bg_color = palette[colors[y * TEXT_WIDTH + x] & 0x0f];
+                // Special background override
                 if (show_cursor && (cursor_x == x) && (cursor_y == y)) {
                     bg_color = MODE0_GREEN;
-                }
-                                
-                const uint8_t* pixel_data = font_data[character];
+                }                                
                 
-                // draw the character into the buffer
-                for (int j=10; j>=1; j--) {
+                // Draw the character into the buffer using the font bitmap
+                // NOTE: We are loading this buffer from the bottom up!
+                const uint8_t character = screen[y * TEXT_WIDTH + x];
+                const uint8_t* pixel_data = font_data[character];
+                for (int j = 10; j >= 1; j--) {
                     *buffer_idx++ = (pixel_data[j] & mask) ? fg_color : bg_color;
                 }
             }
         }
         
-        // now send the slice
-        ili9341_write_data(buffer, 6*240*2);
+        // Now send the slice.  Please note that each pixel is 16 bits.  The buffer
+        // is stored in row-major format starting from the bottom of the screen.
+        ili9341_write_data(buffer, 6 * 240 * 2);
     }
     
     uint16_t extra_buffer[2*240] = { 0 };
