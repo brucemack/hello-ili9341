@@ -57,13 +57,13 @@ int main() {
     const char* msg0 = "Hello Izzy!";
     ili9341_render_text(msg0, 
         (uint16_t)0xffff, ili9341_makeRGB(0, 0, 0b11111), 
-        0, 0, 40,
+        0, 0, 30,
         6, 10, font_0_data);
 
     const char* msg1 = "Hello Henry!";
     ili9341_render_text(msg1, 
         (uint16_t)0xffff, ili9341_makeRGB(0, 0b111111, 0), 
-        0, 1, 40,
+        0, 1, 30,
         6, 10, font_0_data);
  
     // Don't exit

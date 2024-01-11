@@ -239,8 +239,9 @@ void ili9341_render_text(const uint8_t* text,
     const uint16_t screenH = 320;
     const uint16_t textCol = startX * fontW;
     const uint16_t textPage = startY * fontH;
-    const uint16_t textLen = MAX_A(strlen(text), spanW);
-    const uint16_t textCols = MIN_A(screenW - textCol, textLen * fontW);
+    const uint16_t textLen = strlen(text);
+    const uint16_t textLenAdj = MAX_A(strlen(text), spanW);
+    const uint16_t textCols = MIN_A(screenW - textCol, textLenAdj * fontW);
     const uint16_t textPages = fontH;
 
     // Setup the area that the text is going to be written into
