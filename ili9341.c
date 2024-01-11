@@ -207,3 +207,52 @@ void ili9341_init(int mode, ili9341_config_t* cfg) {
     // Display ON (0x29)
     ili9341_set_command(ILI9341_DISPON);
 }
+
+void renderTextLine(uint8_t* text, uint16_t fgColor, uint16_t startX, uint16_t startY, 
+    uint16_t fontW, uint16_t fontH, const uint8_t** fontData) {
+
+    const uint16_t screenW = 240;
+    const uint16_t screenH = 320;
+    uint16_t textCol = startX * fontW;
+    uint16_t textPage = startY * fontH;
+    uint16_t textLen = strlen(text);
+    uint16_t textCols = std::min(screenW - textCol, textLen * fontW);
+    uint16_t textPages = fontH;
+
+    // Setup the area that the text is going to be written into
+    ili9341_set_command(ILI9341_CASET);
+    ili9341_command_param16(textCol);
+    ili9341_command_param16(textCol + textCols - 1); 
+
+    ili9341_set_command(ILI9341_PASET);
+    ili9341_command_param16(textPage);
+    ili9341_command_param16(textPage + textPages - 1);
+
+    ili9341_set_command(ILI9341_RAMWR);
+
+    // This is the buffer we build to transmit to the display. 
+    // We might not necessarily use the entire width.
+    uint16_t buffer[screenW];
+
+    for (uint16_t page = 0; page < textPages; page++) {
+        uint8_t pixMask = 0b01000000;
+        for (uint16_t col = 0; col < textCols; col++) {
+            uint16_t textIdx = col / fontW;
+            char c;
+            if (textCol < textLen) {
+                c = text[textIdx];
+            } else {
+                c = 32;
+            }
+            uint8_t fontIndex = c - 32;
+            if (fontData[fontIndex][page + 1] & pixMask) {
+                buffer[col] = fgColor;
+            } else {
+                buffer[col] = 0;
+            }
+            pixMask >>= 1;            
+        }
+        ili9341_write_data(buffer, textW * 2);
+    }
+}
+
