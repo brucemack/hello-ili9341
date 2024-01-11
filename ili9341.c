@@ -238,26 +238,37 @@ void renderTextLine(const uint8_t* text, uint16_t fgColor,
     uint16_t buffer[screenW];
 
     for (uint16_t page = 0; page < textPages; page++) {
-        uint8_t pixMask = 0b01000000;
-        for (uint16_t col = 0; col < textCols; col++) {
-            uint16_t textIdx = col / fontW;
+
+        uint16_t textIdx = 0;
+        uint1t_t fontCol = 0;
+
+        // Scan across the entire page
+        for (uint16_t col = 0; col < textCols; col++) {                        
+
             char c;
             if (textIdx < textLen) {
                 c = text[textIdx];
             } else {
                 c = 32;
             }
-            if (page == 0) {
-                printf("%d %d %c\n", col, textIdx, c);
-            }
+
             uint8_t fontIndex = c - 32;
+            uint8_t pixMask = 0b01000000 >> fontCol;
+
             if (fontData[fontIndex][page + 1] & pixMask) {
                 buffer[col] = fgColor;
             } else {
                 buffer[col] = 0b1111100000000000;
             }
-            pixMask >>= 1;            
+
+            // Work through text one font column at a time
+            fontCol++;
+            if (fontCol == fontW) {                
+                fontCol = 0;
+                textIdx++;
+            }
         }
+
         ili9341_write_data(buffer, textCols * 2);
     }
 }
