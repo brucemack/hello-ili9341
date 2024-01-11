@@ -11,11 +11,12 @@ FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with 
 this program. If not, see <https://www.gnu.org/licenses/>.
 */
-#include "pico/stdlib.h"
 #include <stdio.h>
 
-#include "ili9341.h"
-#include "textmode.h"
+#include "pico/stdlib.h"
+
+#include "../ili9341.h"
+#include "../textmode.h"
 
 const uint LED_PIN = 25;
 

@@ -13,9 +13,11 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 */
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "pico/stdlib.h"
-#include "ili9341.h"
-#include "font_0.h"
+
+#include "../ili9341.h"
+#include "../font_0.h"
 
 #define SWAP_BYTES(color) ((uint16_t)(color>>8) | (uint16_t)(color<<8))
 
