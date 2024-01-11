@@ -52,6 +52,8 @@ int main() {
 
     ili9341_init(0, &ili9341_config);
 
+    ili9341_clear();
+
     const char* msg0 = "Hello Izzy!";
     renderTextLine(msg0, 
         (uint16_t)0xffff, (uint16_t)0b11111000000000000, 

@@ -105,7 +105,7 @@ void ili9341_init(int mode, ili9341_config_t* cfg) {
     gpio_init(config->pin_cs);
     gpio_set_dir(config->pin_cs, GPIO_OUT);
     // TODO: THIS DOESN'T LOOK RIGHT - TEST THE CHANGE!
-    gpio_put(config->pin_cs, 0);
+    gpio_put(config->pin_cs, 1);
 
     // Reset is active-low
     gpio_init(config->pin_reset);
@@ -209,6 +209,26 @@ void ili9341_init(int mode, ili9341_config_t* cfg) {
     // Display ON (0x29)
     ili9341_set_command(ILI9341_DISPON);
 }
+
+void ili9341_clear() {
+
+    ili9341_set_command(ILI9341_CASET);
+    ili9341_command_param16(0);
+    ili9341_command_param16(239); 
+
+    ili9341_set_command(ILI9341_PASET);
+    ili9341_command_param16(0);
+    ili9341_command_param16(319);
+
+    ili9341_set_command(ILI9341_RAMWR);
+
+    uint16_t buffer[240];
+    memset((void*)buffer, 0, 240 * 2);
+
+    for (uint16_t p = 0; p < 320; p++)
+        ili9341_write_data(buffer, 240 * 2);
+}
+
 
 void renderTextLine(const uint8_t* text, 
     uint16_t fgColor, uint16_t bgColor,

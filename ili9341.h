@@ -93,6 +93,7 @@ void ili9341_command_param(uint8_t data);
 void ili9341_command_param16(uint16_t data);
 void ili9341_write_data(void *buffer, int bytes);
 void ili9341_write_data_continuous(void *biffer, int bytes);
+void ili9341_clear();
 
 /**
  * Takes RGB values and creates a 16-bit number that is suitable to be 
