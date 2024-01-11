@@ -56,19 +56,18 @@ int main() {
 
     const char* msg0 = "Hello Izzy!";
     renderTextLine(msg0, 
-        (uint16_t)0xffff, (uint16_t)0b11111000000000000, 
-        0, 0, 
+        (uint16_t)0xffff, makeRGB(0, 0, 0b11111), 
+        0, 0, 40,
         6, 10, font_0_data);
 
     const char* msg1 = "Hello Henry!";
     renderTextLine(msg1, 
-        (uint16_t)0xffff, (uint16_t)0b0000011111100000, 
-        0, 1,
+        (uint16_t)0xffff, makeRGB(0, 0b111111, 0), 
+        0, 1, 40,
         6, 10, font_0_data);
  
     // Don't exit
     while (true) {
         sleep_ms(500);
     }
-
 }

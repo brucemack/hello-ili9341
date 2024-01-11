@@ -20,6 +20,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "ili9341.h"
 
 #define MIN_A(x, y) (((x) < (y)) ? (x) : (y))
+#define MAX_A(x, y) (((x) > (y)) ? (x) : (y))
 
 // TFT Display Module Connections:
 //
@@ -232,16 +233,16 @@ void ili9341_clear() {
 
 void renderTextLine(const uint8_t* text, 
     uint16_t fgColor, uint16_t bgColor,
-    uint16_t startX, uint16_t startY, 
+    uint16_t startX, uint16_t startY, uint16_t spanW,
     uint16_t fontW, uint16_t fontH, uint8_t fontData[][12]) {
 
     const uint16_t screenW = 240;
     const uint16_t screenH = 320;
-    uint16_t textCol = startX * fontW;
-    uint16_t textPage = startY * fontH;
-    const uint16_t textLen = strlen(text);
-    uint16_t textCols = MIN_A(screenW - textCol, textLen * fontW);
-    uint16_t textPages = fontH;
+    const uint16_t textCol = startX * fontW;
+    const uint16_t textPage = startY * fontH;
+    const uint16_t textLen = MAX_A(strlen(text), spanW);
+    const uint16_t textCols = MIN_A(screenW - textCol, textLen * fontW);
+    const uint16_t textPages = fontH;
 
     // Setup the area that the text is going to be written into
     ili9341_set_command(ILI9341_CASET);
@@ -293,4 +294,3 @@ void renderTextLine(const uint8_t* text,
         ili9341_write_data(buffer, textCols * 2);
     }
 }
-
