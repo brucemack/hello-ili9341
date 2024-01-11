@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-extern uint8_t** font_0_data;
+extern uint8_t font_0_data[95][12];
 
 #endif
 

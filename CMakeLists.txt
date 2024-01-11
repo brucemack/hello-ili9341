@@ -8,8 +8,14 @@ pico_sdk_init()
 
 add_executable(main
   ili9341.c
-  waterfall.c
+  font_0.c
+  text_demo2.c
 )
+
+#add_executable(main
+#  ili9341.c
+#  waterfall.c
+#)
 
 #add_executable(main
 #  font.c

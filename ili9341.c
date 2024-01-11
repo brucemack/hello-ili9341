@@ -19,6 +19,8 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "ili9341.h"
 
+#define MIN_A(x, y) (((x) < (y)) ? (x) : (y))
+
 // TFT Display Module Connections:
 //
 // (pin 1) VCC        5V/3.3V power input
@@ -208,15 +210,16 @@ void ili9341_init(int mode, ili9341_config_t* cfg) {
     ili9341_set_command(ILI9341_DISPON);
 }
 
-void renderTextLine(uint8_t* text, uint16_t fgColor, uint16_t startX, uint16_t startY, 
-    uint16_t fontW, uint16_t fontH, const uint8_t** fontData) {
+void renderTextLine(const uint8_t* text, uint16_t fgColor, 
+    uint16_t startX, uint16_t startY, 
+    uint16_t fontW, uint16_t fontH, uint8_t fontData[][12]) {
 
     const uint16_t screenW = 240;
     const uint16_t screenH = 320;
     uint16_t textCol = startX * fontW;
     uint16_t textPage = startY * fontH;
-    uint16_t textLen = strlen(text);
-    uint16_t textCols = std::min(screenW - textCol, textLen * fontW);
+    const uint16_t textLen = strlen(text);
+    uint16_t textCols = MIN_A(screenW - textCol, textLen * fontW);
     uint16_t textPages = fontH;
 
     // Setup the area that the text is going to be written into
@@ -239,20 +242,23 @@ void renderTextLine(uint8_t* text, uint16_t fgColor, uint16_t startX, uint16_t s
         for (uint16_t col = 0; col < textCols; col++) {
             uint16_t textIdx = col / fontW;
             char c;
-            if (textCol < textLen) {
+            if (textIdx < textLen) {
                 c = text[textIdx];
             } else {
                 c = 32;
+            }
+            if (page == 0) {
+                printf("%d %d %c\n", col, textIdx, c);
             }
             uint8_t fontIndex = c - 32;
             if (fontData[fontIndex][page + 1] & pixMask) {
                 buffer[col] = fgColor;
             } else {
-                buffer[col] = 0;
+                buffer[col] = 0b1111100000000000;
             }
             pixMask >>= 1;            
         }
-        ili9341_write_data(buffer, textW * 2);
+        ili9341_write_data(buffer, textCols * 2);
     }
 }
 
