@@ -64,7 +64,7 @@ int main() {
 
     ili9341_set_command(ILI9341_RAMWR);
 
-    uint16_t fg0 = makeRGB(0, 0b111111, 0); 
+    uint16_t fg0 = ili9341_makeRGB(0, 0b111111, 0); 
     uint16_t fg1 = 0xffff; 
 
     uint16_t buffer[240];

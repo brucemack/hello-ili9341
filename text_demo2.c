@@ -55,14 +55,14 @@ int main() {
     ili9341_clear();
 
     const char* msg0 = "Hello Izzy!";
-    renderTextLine(msg0, 
-        (uint16_t)0xffff, makeRGB(0, 0, 0b11111), 
+    ili9341_render_text(msg0, 
+        (uint16_t)0xffff, ili9341_makeRGB(0, 0, 0b11111), 
         0, 0, 40,
         6, 10, font_0_data);
 
     const char* msg1 = "Hello Henry!";
-    renderTextLine(msg1, 
-        (uint16_t)0xffff, makeRGB(0, 0b111111, 0), 
+    ili9341_render_text(msg1, 
+        (uint16_t)0xffff, ili9341_makeRGB(0, 0b111111, 0), 
         0, 1, 40,
         6, 10, font_0_data);
  

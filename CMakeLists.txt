@@ -18,7 +18,6 @@ add_executable(main
 #)
 
 #add_executable(main
-#  font.c
 #  ili9341.c
 #  textmode.c
 #  textmode_demo.c

@@ -99,12 +99,10 @@ void ili9341_clear();
  * Takes RGB values and creates a 16-bit number that is suitable to be 
  * transmitted directly in the correct endian format.
  */
-uint16_t makeRGB(uint8_t r, uint8_t g, uint8_t b);
+uint16_t ili9341_makeRGB(uint8_t r, uint8_t g, uint8_t b);
 
-void renderTextLine(const uint8_t* text, uint16_t fgColor, uint16_t bgColor, 
+void ili9341_render_text(const uint8_t* text, uint16_t fgColor, uint16_t bgColor, 
   uint16_t startX, uint16_t startY, uint16_t spanW,
   uint16_t fontW, uint16_t fontH, uint8_t fontData[][12]);
-
-
 
 #endif

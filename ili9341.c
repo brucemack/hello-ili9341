@@ -82,7 +82,7 @@ void ili9341_write_data_continuous(void *buffer, int bytes) {
     spi_write_blocking(config->port, buffer, bytes);
 }
 
-uint16_t makeRGB(uint8_t r, uint8_t g, uint8_t b) {
+uint16_t ili9341_makeRGB(uint8_t r, uint8_t g, uint8_t b) {
   uint16_t a = ((uint16_t)r << 11) | ((uint16_t)g << 5) | (uint16_t)b;
   // Swap endians
   return a >> 8 | a << 8; 
@@ -230,8 +230,7 @@ void ili9341_clear() {
         ili9341_write_data(buffer, 240 * 2);
 }
 
-
-void renderTextLine(const uint8_t* text, 
+void ili9341_render_text(const uint8_t* text, 
     uint16_t fgColor, uint16_t bgColor,
     uint16_t startX, uint16_t startY, uint16_t spanW,
     uint16_t fontW, uint16_t fontH, uint8_t fontData[][12]) {
