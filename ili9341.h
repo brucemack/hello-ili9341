@@ -100,7 +100,8 @@ void ili9341_write_data_continuous(void *biffer, int bytes);
  */
 uint16_t makeRGB(uint8_t r, uint8_t g, uint8_t b);
 
-void renderTextLine(const uint8_t* text, uint16_t fgColor, uint16_t startX, uint16_t startY, 
+void renderTextLine(const uint8_t* text, uint16_t fgColor, uint16_t bgColor, 
+  uint16_t startX, uint16_t startY, 
   uint16_t fontW, uint16_t fontH, uint8_t fontData[][12]);
 
 

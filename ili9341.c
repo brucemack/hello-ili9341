@@ -210,7 +210,8 @@ void ili9341_init(int mode, ili9341_config_t* cfg) {
     ili9341_set_command(ILI9341_DISPON);
 }
 
-void renderTextLine(const uint8_t* text, uint16_t fgColor, 
+void renderTextLine(const uint8_t* text, 
+    uint16_t fgColor, uint16_t bgColor,
     uint16_t startX, uint16_t startY, 
     uint16_t fontW, uint16_t fontH, uint8_t fontData[][12]) {
 
@@ -240,7 +241,7 @@ void renderTextLine(const uint8_t* text, uint16_t fgColor,
     for (uint16_t page = 0; page < textPages; page++) {
 
         uint16_t textIdx = 0;
-        uint1t_t fontCol = 0;
+        uint16_t fontCol = 0;
 
         // Scan across the entire page
         for (uint16_t col = 0; col < textCols; col++) {                        
@@ -258,7 +259,7 @@ void renderTextLine(const uint8_t* text, uint16_t fgColor,
             if (fontData[fontIndex][page + 1] & pixMask) {
                 buffer[col] = fgColor;
             } else {
-                buffer[col] = 0b1111100000000000;
+                buffer[col] = bgColor;
             }
 
             // Work through text one font column at a time

@@ -52,9 +52,17 @@ int main() {
 
     ili9341_init(0, &ili9341_config);
 
-    const char* msg = "Yello Izzy!";
+    const char* msg0 = "Hello Izzy!";
+    renderTextLine(msg0, 
+        (uint16_t)0xffff, (uint16_t)0b11111000000000000, 
+        0, 0, 
+        6, 10, font_0_data);
 
-    renderTextLine(msg, 0xffff, 0, 0, 6, 10, font_0_data);
+    const char* msg1 = "Hello Henry!";
+    renderTextLine(msg1, 
+        (uint16_t)0xffff, (uint16_t)0b0000011111100000, 
+        0, 1,
+        6, 10, font_0_data);
  
     // Don't exit
     while (true) {
